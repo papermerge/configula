@@ -1,0 +1,12 @@
+.venv
+.idea
+*.pyc
+__pycache__
+*.swp
+*.swn
+*.swo
+*.log
+*.sqlite3
+*.sublime-project
+.vscode
+.env
