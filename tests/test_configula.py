@@ -44,3 +44,17 @@ class TestConfigula(unittest.TestCase):
         # clean up test
         if value_before_test:
             os.environ['PAPERMERGE_OCR_DEFAULT_LANGUAGE'] = value_before_test
+
+    def test_basic_positive_get_var(self):
+        """Retrieves an existing value from confuration file"""
+        value = self.configula.get_var('some_var')
+        self.assertEqual(value, 100)
+
+    def test_basic_negative_get_var(self):
+        """
+        If configuration does not exist - neither in configuration
+         file nor as environment variable - returns None.
+        """
+
+        value = self.configula.get_var('non_existing_var')
+        self.assertIsNone(value)

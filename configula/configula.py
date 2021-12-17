@@ -86,3 +86,19 @@ class Configula:
             value = None
 
         return value or default
+
+    def get_var(self, var_name, default=None):
+        """
+        Reads `var_name` either from toml config or from environment variable.
+
+        In case no value is found in above sources value provided as `default`
+        will be returned.
+        """
+        env_name = f"{self.prefix}_{var_name}".upper()
+
+        try:
+            value = os.getenv(env_name) or self._toml_config[var_name]
+        except Exception as exc:
+            value = None
+
+        return value or default
