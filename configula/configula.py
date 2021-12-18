@@ -5,6 +5,8 @@ from tomlkit import loads
 
 
 class Configula:
+    MYSQL_TYPE = ('my', 'mysql', 'maria', 'mariadb')
+    POSTGRES_TYPE = ('pg', 'postgre', 'postgres', 'postgresql')
 
     def __init__(
         self,
@@ -102,3 +104,53 @@ class Configula:
             value = None
 
         return value or default
+
+    def get_django_databases(self, proj_root):
+        """Returns dictionary for django DATABASES settings"""
+        # by default, if no value is provided for database, use
+        # sqlite3 with file located in `proj_root`
+        section = 'database'
+        result = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": os.path.join(
+                    self.get(
+                        'db',
+                        'dir',
+                        default=proj_root
+                    ),
+                    'db.sqlite3'
+                )
+            }
+        }
+
+        if self.get(section, 'type', False) in self.POSTGRES_TYPE:
+            result["default"] = {
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": self.get(section, "name", "papermerge"),
+                "USER": self.get(section, "user", "papermerge"),
+            }
+            result["default"]["PASSWORD"] = self.get(section, 'pass', "")
+            result["default"]["HOST"] = self.get(
+                'db',
+                'host',
+                'localhost'
+            )
+            result["default"]["PORT"] = self.get(section, 'port', 5432)
+        elif self.get(section, 'type', False) in self.MYSQL_TYPE:
+            result['default'] = {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": self.get(section, 'name', 'papermerge'),
+                "USER": self.get(section, 'user', 'papermerge'),
+            }
+            result["default"]["PASSWORD"] = self.get(section, 'pass', '')
+            result["default"]["HOST"] = self.get(
+                section, 'host', 'localhost'
+            )
+            result["default"]["PORT"] = self.get(section, 'port', 3306)
+
+        return result
+
+    @property
+    def has_mysql(self):
+        return self.get('database', 'type') in self.MYSQL_TYPE
