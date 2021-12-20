@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "configula"
-version = "0.3.1"
+version = "0.4.0"
 description = "Merges configuration from toml file and environment variables"
 authors = ["Eugen Ciur <eugen@papermerge.com>"]
 

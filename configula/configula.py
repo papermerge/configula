@@ -133,7 +133,7 @@ class Configula:
                 "NAME": self.get(section, "name", "papermerge"),
                 "USER": self.get(section, "user", "papermerge"),
             }
-            result["default"]["PASSWORD"] = self.get(section, 'pass', "")
+            result["default"]["PASSWORD"] = self.get(section, 'password', "")
             result["default"]["HOST"] = self.get(
                 section,
                 'host',
@@ -146,7 +146,7 @@ class Configula:
                 "NAME": self.get(section, 'name', 'papermerge'),
                 "USER": self.get(section, 'user', 'papermerge'),
             }
-            result["default"]["PASSWORD"] = self.get(section, 'pass', '')
+            result["default"]["PASSWORD"] = self.get(section, 'password', '')
             result["default"]["HOST"] = self.get(
                 section, 'host', 'localhost'
             )
