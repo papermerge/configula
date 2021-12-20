@@ -35,17 +35,20 @@ class Configula:
                 config_env_var_name='PAPERMERGE_CONFIG'
             )
 
-        In case papermerge.toml was not found in current location and /etc/papermerge.toml
-        does not exists, it continue look for configuration file by looking at
-        PAPERMERGE_CONFIG environment variable.
-        If PAPERMERGE_CONFIG environment variable exists and is (for example):
+        In case papermerge.toml was not found in current location
+        and /etc/papermerge.toml does not exists, it continue look for
+        configuration file by looking at PAPERMERGE_CONFIG environment
+        variable. If PAPERMERGE_CONFIG environment variable exists and is
+        (for example):
 
             PAPERMERGE_CONFIG=/home/eugen/papermerge.toml
 
-        will load configurations from /home/eugen/papermerge.toml. In case either /home/eugen/papermerge.toml
-        does not exists or PAPERMERGE_CONFIG environment variable does not exists, Configula will silently give
-         up searching for toml configuration file will look up for config values only in envrionment
-         variables prefixed with 'PAPERMERGE'
+        will load configurations from /home/eugen/papermerge.toml. In case
+        either /home/eugen/papermerge.toml does not exists or
+        PAPERMERGE_CONFIG environment variable does not exists, Configula
+        will silently give up searching for toml configuration file will look
+        up for config values only in envrionment variables prefixed
+        with 'PAPERMERGE'
         """
         self.config_locations = config_locations
         self.config_env_var_name = config_env_var_name
@@ -115,7 +118,7 @@ class Configula:
                 "ENGINE": "django.db.backends.sqlite3",
                 "NAME": os.path.join(
                     self.get(
-                        'db',
+                        section,
                         'dir',
                         default=proj_root
                     ),
@@ -132,7 +135,7 @@ class Configula:
             }
             result["default"]["PASSWORD"] = self.get(section, 'pass', "")
             result["default"]["HOST"] = self.get(
-                'db',
+                section,
                 'host',
                 'localhost'
             )
