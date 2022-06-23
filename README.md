@@ -12,10 +12,9 @@ By default `__` (two underscores) is used as delimiter in environment variables
 names. For example, given following toml file:
 
     [main]
-        secret_key = 1234
-
+    secret_key = 1234
     [ocr]
-        default_language = 'deu'
+    default_language = 'deu'
 
 corespondent environment variables names are PAPERMERGE__MAIN__SECRET_KEY and
 PAPERMERGE__OCR__DEFAULT_LANGUAGE - notice two underscores separate section name
@@ -30,9 +29,9 @@ all variables **must be placed in sections**.
 
 By default Configula looks up for following toml file:
 
-    - /etc/papermerge/papermerge.toml
-    - /etc/papermerge.toml
-    - papermerge.toml
+- /etc/papermerge/papermerge.toml
+- /etc/papermerge.toml
+- papermerge.toml
 
 If you have custom location (or custom file name), use ``PAPERMERGE__CONFIG``
 (notice double underscores) environment variable to point to it:
@@ -67,4 +66,3 @@ by environment variable `PAPERMERGE__MAIN__SECRET_KEY`
 
 If you want to read variable from a section use
 `configula.get(section, var_name, default_value)` method.
-
