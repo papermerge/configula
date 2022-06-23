@@ -6,12 +6,14 @@ from configula import Configula
 
 class TestDatabaseSectionConfigula(unittest.TestCase):
     """
-    Performs test in section [database] of toml file
+    Performs test for section [database] of toml file
     """
 
     def test_with_mysql_1(self):
         toml_file = os.path.join(
-            os.path.dirname(__file__), "examples", "papermerge_with_mysql_1.toml"
+            os.path.dirname(__file__),
+            "examples",
+            "papermerge_with_mysql_1.toml"
         )
         configula = Configula(
             config_locations=[toml_file],
@@ -39,7 +41,9 @@ class TestDatabaseSectionConfigula(unittest.TestCase):
 
     def test_with_postgres_1(self):
         toml_file = os.path.join(
-            os.path.dirname(__file__), "examples", "papermerge_with_postgres_1.toml"
+            os.path.dirname(__file__),
+            "examples",
+            "papermerge_with_postgres_1.toml"
         )
         configula = Configula(
             config_locations=[toml_file],
@@ -64,7 +68,9 @@ class TestDatabaseSectionConfigula(unittest.TestCase):
 
     def test_with_sqlite3(self):
         toml_file = os.path.join(
-            os.path.dirname(__file__), "examples", "papermerge_with_sqlite.toml"
+            os.path.dirname(__file__),
+            "examples",
+            "papermerge_with_sqlite.toml"
         )
         configula = Configula(
             config_locations=[toml_file],
@@ -81,4 +87,3 @@ class TestDatabaseSectionConfigula(unittest.TestCase):
             databases['default']['NAME'],
             '/home/here/db.sqlite3'
         )
-

@@ -5,24 +5,84 @@ from tomlkit import loads
 
 
 class Configula:
+    """
+    Creates a single configuration by merging settings defined in:
+        1. in environment variables
+        2. in toml file
+
+    Values provided in **environment variables have priority** over values from
+    toml configuration file.
+
+    By default all environment variables are prefixed with 'PAPERMERGE'. By
+    default `__` (two underscores) is used as delimiter in environment
+    variables names. For example, given following toml file:
+
+        [main]
+            secret_key = 1234
+
+        [ocr]
+            default_language = 'deu'
+
+    corespondent environment variables names are PAPERMERGE__MAIN__SECRET_KEY
+    and PAPERMERGE__OCR__DEFAULT_LANGUAGE - notice two underscores separate
+    section name from prefix and variable name. Environment variable name
+    format is (all in uppercase):
+
+         <prefix><delimiter><section><delimiter><variable>
+
+    Although in toml files you can place variable names outside sections, in
+    Configula all variables **must be placed in sections**.
+
+    By default Configula looks up for following toml file:
+
+        - /etc/papermerge/papermerge.toml
+        - /etc/papermerge.toml
+        - papermerge.toml
+
+    If you have custom location (or custom file name), use
+    ``PAPERMERGE__CONFIG``(notice double underscores) environment variable to
+    point to it:
+
+        PAPERMERGE__CONFIG=/app/config/pm.toml
+
+    Example of usage:
+
+        from configula import Configula
+
+        config = Configula()
+
+        default_language = config.get('ocr', 'default_language')
+        secret_key = config.get('main', 'secret_key')
+        debug = config.get('main', 'debug', default=False)
+    """
     MYSQL_TYPE = ('my', 'mysql', 'maria', 'mariadb')
     POSTGRES_TYPE = ('pg', 'postgre', 'postgres', 'postgresql')
+    DEFAULT_PREFIX = 'PAPERMERGE'
+    DEFAULT_DELIMITER = '__'
+    DEFAULT_LOCATIONS = [
+        "/etc/papermerge/papermerge.toml",
+        "/etc/papermerge.toml",
+        "papermerge.toml"
+    ]
+    DEFAULT_CONFIG_VAR_NAME = "PAPERMERGE__CONFIG"
 
     def __init__(
         self,
-        prefix,
+        prefix=None,
+        delimiter=None,
         config_locations=None,
         config_env_var_name=None
     ):
         """
-        Args:
-            `config_locations` (list): a list of string file paths
-                where to load configurations from
-            `config_env_var_name` (str): in case `config_locations` was
-                not provided, load file configurations
-            from a file pointed by this environment variable
-            `prefix` (str): all configurations provided by environment
-                variables will be prefixed with this value
+        `config_locations` (list): a list of string file paths
+            where to load configurations from
+        `config_env_var_name` (str): in case `config_locations` was
+            not provided, load file configurations
+        from a file pointed by this environment variable
+        `prefix` (str): all configurations provided by environment
+            variables will be prefixed with this value
+        `delimiter` (str): default delimiter is `__` (two underscores)
+            i.e. <prefix>__<section>__<value>
 
         Example:
 
@@ -32,27 +92,44 @@ class Configula:
                     'papermerge.toml',
                     '/etc/papermerge.toml'
                 ],
-                config_env_var_name='PAPERMERGE_CONFIG'
+                config_env_var_name='PAPERMERGE__CONFIG'
             )
 
         In case papermerge.toml was not found in current location
         and /etc/papermerge.toml does not exists, it continue look for
-        configuration file by looking at PAPERMERGE_CONFIG environment
-        variable. If PAPERMERGE_CONFIG environment variable exists and is
+        configuration file by looking at PAPERMERGE__CONFIG environment
+        variable. If PAPERMERGE__CONFIG environment variable exists and is
         (for example):
 
-            PAPERMERGE_CONFIG=/home/eugen/papermerge.toml
+            PAPERMERGE__CONFIG=/home/eugen/papermerge.toml
 
-        will load configurations from /home/eugen/papermerge.toml. In case
-        either /home/eugen/papermerge.toml does not exists or
-        PAPERMERGE_CONFIG environment variable does not exists, Configula
-        will silently give up searching for toml configuration file will look
-        up for config values only in envrionment variables prefixed
-        with 'PAPERMERGE'
+        will load configurations from /home/eugen/papermerge.toml.
+
+        Environment variables values have HIGHTEST priority.
+        If both toml configuration file is present and corresponding
+        environment variable is present - environment variable gets
+        priority over corresponding value found in toml file.
         """
-        self.config_locations = config_locations
-        self.config_env_var_name = config_env_var_name
-        self.prefix = prefix
+        if config_locations is None:
+            self.config_locations = self.DEFAULT_LOCATIONS
+        else:
+            self.config_locations = config_locations
+
+        if config_env_var_name is None:
+            self.config_env_var_name = self.DEFAULT_CONFIG_VAR_NAME
+        else:
+            self.config_env_var_name = config_env_var_name
+
+        if prefix is None:
+            self.prefix = self.DEFAULT_PREFIX
+        else:
+            self.prefix = prefix
+
+        if delimiter is None:
+            self.delimiter = self.DEFAULT_DELIMITER
+        else:
+            self.delimiter = delimiter
+
         self._toml_config = self.load_toml()
 
     def _loads(self, file_path):
@@ -83,30 +160,17 @@ class Configula:
         In case no value is found in above sources value provided as `default`
         will be returned.
         """
-        env_name = f"{self.prefix}_{section_name}_{var_name}".upper()
+        pref = self.prefix
+        delim = self.delimiter
+        env_name = f"{pref}{delim}{section_name}{delim}{var_name}".upper()
 
         try:
-            value = os.getenv(env_name) or self._toml_config[section_name][var_name]
-        except Exception as exc:
-            value = None
+            env_value = os.getenv(env_name)
+            value = env_value or self._toml_config[section_name][var_name]
+        except Exception as _:
+            value = default
 
-        return value or default
-
-    def get_var(self, var_name, default=None):
-        """
-        Reads `var_name` either from toml config or from environment variable.
-
-        In case no value is found in above sources value provided as `default`
-        will be returned.
-        """
-        env_name = f"{self.prefix}_{var_name}".upper()
-
-        try:
-            value = os.getenv(env_name) or self._toml_config[var_name]
-        except Exception as exc:
-            value = None
-
-        return value or default
+        return value
 
     def get_django_databases(self, proj_root):
         """Returns dictionary for django DATABASES settings"""
