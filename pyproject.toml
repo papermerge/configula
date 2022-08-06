@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "configula"
-version = "0.5.0"
+version = "0.5.1"
 description = "Merges configuration from toml file and environment variables"
 authors = ["Eugen Ciur <eugen@papermerge.com>"]
 maintainers = ["Eugen Ciur <eugen@papermerge.com>"]
@@ -23,7 +23,7 @@ repository = "https://github.com/papermerge/configula"
 keywords = ["configurations", "config", "environment variables", "toml"]
 
 [tool.poetry.dependencies]
-python = "~3.8"
+python = ">=3.8, <=3.10.6"
 tomlkit = "^0.7.2"
 
 [tool.poetry.dev-dependencies]
