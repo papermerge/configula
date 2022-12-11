@@ -23,7 +23,7 @@ repository = "https://github.com/papermerge/configula"
 keywords = ["configurations", "config", "environment variables", "toml"]
 
 [tool.poetry.dependencies]
-python = ">=3.8, <=3.10.6"
+python = ">=3.8, <3.11"
 tomlkit = "^0.7.2"
 
 [tool.poetry.dev-dependencies]
